@@ -1,5 +1,8 @@
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
+import os
+
+TOKEN = os.getenv("TOKEN")
 
 tasks = {
     "Task 1": {"status": "Not Done", "worker": None},
@@ -21,7 +24,7 @@ def button(update: Update, _: CallbackContext) -> None:
     tasks[task]["worker"] = query.from_user.id
     query.edit_message_text(text=f"{task} is now Done by {query.from_user.id}")
 
-updater = Updater("TOKEN")
+updater = Updater(TOKEN)
 
 updater.dispatcher.add_handler(CommandHandler("start", start))
 updater.dispatcher.add_handler(CallbackQueryHandler(button))
