@@ -11,8 +11,8 @@ TOKEN = os.getenv("TOKEN")
 
 tasks = {f"Task {i+1}": {"status": "Not Done", "worker": None} for i in range(25)}
 
-# Словарь для хранения идентификаторов сообщений и идентификаторов чатов
-chat_message_ids = {}
+# Список для хранения пар (chat_id, message_id)
+chat_message_ids = []
 
 def generate_keyboard():
     keyboard = []
@@ -25,8 +25,8 @@ def start(update: Update, _: CallbackContext) -> None:
     reply_markup = generate_keyboard()
     sent_message = update.message.reply_text("Choose a task:", reply_markup=reply_markup)
     
-    # Сохраняем идентификатор сообщения и идентификатор чата
-    chat_message_ids[update.message.chat_id] = sent_message.message_id
+    # Добавляем пару (chat_id, message_id) в список
+    chat_message_ids.append((update.message.chat_id, sent_message.message_id))
 
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -40,7 +40,7 @@ def button(update: Update, context: CallbackContext) -> None:
     query.edit_message_text("Choose a task:", reply_markup=reply_markup)
     
     # Обновляем сообщения для всех остальных пользователей
-    for chat_id, message_id in chat_message_ids.items():
+    for chat_id, message_id in chat_message_ids:
         context.bot.edit_message_text(
             chat_id=chat_id,
             message_id=message_id,
