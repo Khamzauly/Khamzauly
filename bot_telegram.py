@@ -1,6 +1,7 @@
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
 import logging
+import os
 
 # Инициализация логгера
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
