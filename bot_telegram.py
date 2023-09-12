@@ -1,46 +1,51 @@
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
+from sqlalchemy import Column, String, create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 import os
 
 TOKEN = os.getenv("TOKEN")
 
-tasks = {f"Task {i+1}": {"status": "Not Done", "worker": None} for i in range(25)}
-active_chats = {}  # Здесь будем хранить активные чаты и ID сообщений
+Base = declarative_base()
+
+class Task(Base):
+    __tablename__ = 'tasks'
+    name = Column(String, primary_key=True)
+    status = Column(String)
+    worker = Column(String)
+
+# Initialize DB
+engine = create_engine('mysql+mysqlconnector://kespekz_Khamzauly:your_password@srv-pleskdb22.ps.kz:3306/kespekz_nuduregulator')
+Base.metadata.create_all(engine)
+Session = sessionmaker(bind=engine)
+session = Session()
 
 def start(update: Update, _: CallbackContext) -> None:
-    chat_id = update.message.chat_id
-    keyboard = generate_keyboard()
-    sent_message = update.message.reply_text("Choose a task:", reply_markup=keyboard)
-    active_chats[chat_id] = sent_message.message_id  # Сохраняем ID сообщения
+    tasks = session.query(Task).all()
+    keyboard = [[InlineKeyboardButton(f"{task.name} {'✅' if task.status == 'Done' else ''}", callback_data=task.name)] for task in tasks]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text("Choose a task:", reply_markup=reply_markup)
 
-def button(update: Update, context: CallbackContext) -> None:
+def button(update: Update, _: CallbackContext) -> None:
     query = update.callback_query
-    task = query.data
-    tasks[task]["status"] = "Done"
-    tasks[task]["worker"] = query.from_user.first_name
+    task_name = query.data
 
-    keyboard = generate_keyboard()
+    task = session.query(Task).filter_by(name=task_name).first()
+    if task:
+        task.status = "Done"
+        task.worker = query.from_user.username or query.from_user.first_name
+        session.commit()
 
-    for chat_id, message_id in active_chats.items():
-        context.bot.edit_message_text(chat_id=chat_id, message_id=message_id, text="Updated tasks:", reply_markup=keyboard)
+    tasks = session.query(Task).all()
+    keyboard = [[InlineKeyboardButton(f"{task.name} {'✅' if task.status == 'Done' else ''} {task.worker if task.worker else ''}", callback_data=task.name)] for task in tasks]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_text("Choose a task:", reply_markup=reply_markup)
 
-def generate_keyboard():
-    keyboard = []
-    for task, data in tasks.items():
-        text = task
-        if data["status"] == "Done":
-            text += f" ✅ by {data['worker']}"
-        keyboard.append([InlineKeyboardButton(text, callback_data=task)])
-    return InlineKeyboardMarkup(keyboard)
+updater = Updater(TOKEN)
 
-def main():
-    updater = Updater(TOKEN)
+updater.dispatcher.add_handler(CommandHandler("start", start))
+updater.dispatcher.add_handler(CallbackQueryHandler(button))
 
-    updater.dispatcher.add_handler(CommandHandler("start", start))
-    updater.dispatcher.add_handler(CallbackQueryHandler(button))
-
-    updater.start_polling()
-    updater.idle()
-
-if __name__ == "__main__":
-    main()
+updater.start_polling()
+updater.idle()
