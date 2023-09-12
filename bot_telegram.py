@@ -16,7 +16,7 @@ class Task(Base):
     worker = Column(String)
 
 # Initialize DB
-engine = create_engine('mysql+mysqlconnector://kespekz_Khamzauly:your_password@srv-pleskdb22.ps.kz:3306/kespekz_nuduregulator')
+engine = create_engine('mysql+mysqlconnector://kespekz_Khamzauly:150895aA!!@srv-pleskdb22.ps.kz:3306/kespekz_nuduregulator')
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session()
