@@ -5,13 +5,13 @@ import os
 TOKEN = os.getenv("TOKEN")
 
 tasks = {f"Task {i+1}": {"status": "Not Done", "worker": None} for i in range(25)}
-active_chats = set()  # Здесь будем хранить активные чаты
+active_chats = {}  # Здесь будем хранить активные чаты и ID сообщений
 
 def start(update: Update, _: CallbackContext) -> None:
     chat_id = update.message.chat_id
-    active_chats.add(chat_id)
     keyboard = generate_keyboard()
-    update.message.reply_text("Choose a task:", reply_markup=keyboard)
+    sent_message = update.message.reply_text("Choose a task:", reply_markup=keyboard)
+    active_chats[chat_id] = sent_message.message_id  # Сохраняем ID сообщения
 
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -21,8 +21,8 @@ def button(update: Update, context: CallbackContext) -> None:
 
     keyboard = generate_keyboard()
 
-    for chat_id in active_chats:
-        context.bot.send_message(chat_id, "Tasks updated!", reply_markup=keyboard)
+    for chat_id, message_id in active_chats.items():
+        context.bot.edit_message_text(chat_id=chat_id, message_id=message_id, text="Updated tasks:", reply_markup=keyboard)
 
 def generate_keyboard():
     keyboard = []
