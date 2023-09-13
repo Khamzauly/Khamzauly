@@ -5,7 +5,7 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime
 
 # Инициализация Google Sheets API
-json_file_path = 'client_secret_73898426089-3lfiu34v8g4o3lda3r51qonm6mj0hpnr.apps.googleusercontent.com.json'
+json_file_path = '/client_secret_73898426089-3lfiu34v8g4o3lda3r51qonm6mj0hpnr.apps.googleusercontent.com.json'
 scopes = ['https://www.googleapis.com/auth/spreadsheets']
 credentials = Credentials.from_service_account_file(json_file_path, scopes=scopes)
 service = build('sheets', 'v4', credentials=credentials)
