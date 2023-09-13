@@ -1,51 +1,61 @@
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
-from sqlalchemy import Column, String, create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-import os
+import datetime
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
+from googleapiclient.discovery import build
+from google.oauth2.service_account import Credentials
 
-TOKEN = os.getenv("TOKEN")
+# Настройка Google Sheets API
+scopes = ['https://www.googleapis.com/auth/spreadsheets']
+credentials = Credentials.from_service_account_file('client_secret_73898426089-3lfiu34v8g4o3lda3r51qonm6mj0hpnr.apps.googleusercontent.com.json', scopes=scopes)
+service = build('sheets', 'v4', credentials=credentials)
+sheet = service.spreadsheets()
 
-Base = declarative_base()
+# Получение данных из Google Sheets
+def get_tasks():
+    today = datetime.datetime.now().strftime("%d.%m.%y")
+    range_name = f'{today}!A2:D'
+    result = sheet.values().get(spreadsheetId="YOUR_SPREADSHEET_ID", range=range_name).execute()
+    return result.get('values', [])
 
-class Task(Base):
-    __tablename__ = 'tasks'
-    name = Column(String, primary_key=True)
-    status = Column(String)
-    worker = Column(String)
+# Обновление данных в Google Sheets
+def update_task(row, user_name):
+    today = datetime.datetime.now().strftime("%d.%m.%y")
+    range_name = f'{today}!B{row}:D{row}'
+    values = [
+        ["TRUE", user_name, datetime.datetime.now().strftime("%H:%M:%S")]
+    ]
+    body = {'values': values}
+    sheet.values().update(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range=range_name, valueInputOption="RAW", body=body).execute()
 
-# Initialize DB
-engine = create_engine('mysql+mysqlconnector://kespekz_Khamzauly:150895aA!!@srv-pleskdb22.ps.kz:3306/kespekz_nuduregulator')
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
-session = Session()
-
-def start(update: Update, _: CallbackContext) -> None:
-    tasks = session.query(Task).all()
-    keyboard = [[InlineKeyboardButton(f"{task.name} {'✅' if task.status == 'Done' else ''}", callback_data=task.name)] for task in tasks]
+# Обработчик команды /start
+def start(update: Update, context: CallbackContext):
+    keyboard = []
+    tasks = get_tasks()
+    for i, task in enumerate(tasks):
+        status = '✅' if task[1] == "TRUE" else ''
+        name = task[2] if len(task) > 2 else ''
+        keyboard.append([InlineKeyboardButton(f"{task[0]} {status} {name}", callback_data=str(i))])
+    
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text("Choose a task:", reply_markup=reply_markup)
+    update.message.reply_text('Выберите задачу:', reply_markup=reply_markup)
 
-def button(update: Update, _: CallbackContext) -> None:
+# Обработчик кнопок
+def button(update: Update, context: CallbackContext):
     query = update.callback_query
-    task_name = query.data
+    task_index = int(query.data)
+    user_name = update.effective_user.first_name
+    
+    # Обновление данных в Google Sheets
+    update_task(task_index + 2, user_name)  # task_index + 2, потому что нумерация строк в Google Sheets начинается с 1, и у нас есть заголовок.
+    
+    # Здесь отправьте обновленный список задач всем пользователям
 
-    task = session.query(Task).filter_by(name=task_name).first()
-    if task:
-        task.status = "Done"
-        task.worker = query.from_user.username or query.from_user.first_name
-        session.commit()
+# Основной код
+updater = Updater("6655324353:AAEWkQb0b971nP4kf6OvS5s6fof0-NNfKHA")
+dp = updater.dispatcher
 
-    tasks = session.query(Task).all()
-    keyboard = [[InlineKeyboardButton(f"{task.name} {'✅' if task.status == 'Done' else ''} {task.worker if task.worker else ''}", callback_data=task.name)] for task in tasks]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    query.edit_message_text("Choose a task:", reply_markup=reply_markup)
-
-updater = Updater(TOKEN)
-
-updater.dispatcher.add_handler(CommandHandler("start", start))
-updater.dispatcher.add_handler(CallbackQueryHandler(button))
+dp.add_handler(CommandHandler("start", start))
+dp.add_handler(CallbackQueryHandler(button))
 
 updater.start_polling()
 updater.idle()
