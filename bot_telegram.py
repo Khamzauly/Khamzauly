@@ -7,7 +7,7 @@ import json
 import os
 
 # Инициализация Google Sheets API
-google_credentials = json.loads(os.environ("LINK"))
+google_credentials = json.loads(os.getenv("LINK"))
 scopes = ['https://www.googleapis.com/auth/spreadsheets']
 credentials = Credentials.from_service_account_file(google_credentials, scopes=scopes)
 service = build('sheets', 'v4', credentials=credentials)
