@@ -3,6 +3,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQuery
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 from datetime import datetime
+import json
 import os
 
 # Инициализация Google Sheets API
