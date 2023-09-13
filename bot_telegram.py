@@ -3,11 +3,12 @@ from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQuery
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 from datetime import datetime
+import os
 
 # Инициализация Google Sheets API
-json_file_path = '/client_secret_73898426089-3lfiu34v8g4o3lda3r51qonm6mj0hpnr.apps.googleusercontent.com.json'
+google_credentials = json.loads(os.environ['LINK'])
 scopes = ['https://www.googleapis.com/auth/spreadsheets']
-credentials = Credentials.from_service_account_file(json_file_path, scopes=scopes)
+credentials = Credentials.from_service_account_file(google_credentials, scopes=scopes)
 service = build('sheets', 'v4', credentials=credentials)
 sheet = service.spreadsheets()
 
