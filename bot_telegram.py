@@ -1,5 +1,8 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
+from telegram import Update, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, InputFile
+from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, MessageHandler, Filters
+from telegram.ext.callbackcontext import CallbackContext
+
+
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 from datetime import datetime
