@@ -25,7 +25,7 @@ def get_tasks():
 def update_task(row, user_name):
     sheet.values().update(
         spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w",
-        range=f"13.09.23!B{row}:D{row}",
+        range=f"asd!B{row}:D{row}",
         body={"values": [[True, user_name, str(datetime.now())]]},
         valueInputOption="RAW"
     ).execute()
@@ -34,12 +34,20 @@ def update_task(row, user_name):
 def start(update: Update, context: CallbackContext):
     keyboard = []
     tasks = get_tasks()
-    for i, task in enumerate(tasks):
-        status = "✅" if task[1] == "TRUE" else "❌"
-        keyboard.append([InlineKeyboardButton(f"{task[0]} {status}", callback_data=str(i))])
-    
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text('Выберите задачу:', reply_markup=reply_markup)
+    if tasks:
+        for i, task in enumerate(tasks):
+            if len(task) > 1:  # Проверка наличия элемента с индексом 1
+                status = "✅" if task[1] == "TRUE" else "❌"
+                keyboard.append([InlineKeyboardButton(f"{task[0]} {status}", callback_data=str(i))])
+            else:
+                # Случай, когда у нас недостаточно данных в списке task
+                keyboard.append([InlineKeyboardButton(f"{task[0]} ❓", callback_data=str(i))])
+        
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        update.message.reply_text('Выберите задачу:', reply_markup=reply_markup)
+    else:
+        update.message.reply_text('Задачи не найдены.')
+
 
 # Обработчик кнопок
 def button(update: Update, context: CallbackContext):
