@@ -23,15 +23,14 @@ zone_photos = {}
 photo_zones = ["зоны 1", "зоны 2", "зоны 3"]
 
 def get_tasks():
-    # Получаем задачи из Google Sheets
-    result = sheet.values().get(spreadsheetId="YOUR_SPREADSHEET_ID", range="YOUR_RANGE").execute()
+    result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="asd!A2:D32").execute()
     return result.get('values', [])
 
 def update_task(row, user_name):
     # Обновляем задачу в Google Sheets
     sheet.values().update(
-        spreadsheetId="YOUR_SPREADSHEET_ID",
-        range=f"YOUR_RANGE{row}",
+        spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w",
+        range=f"asd!B{row}:D{row}",
         body={"values": [[True, user_name, str(datetime.now())]]},
         valueInputOption="RAW"
     ).execute()
