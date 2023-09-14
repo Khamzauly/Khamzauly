@@ -22,7 +22,8 @@ json_str = """{
 
 
 scopes = ['https://www.googleapis.com/auth/spreadsheets']
-credentials = Credentials.from_service_account_info(json_str, scopes=scopes)
+google_credentials = json.loads(json_str)
+credentials = Credentials.from_service_account_info(google_credentials, scopes=scopes)
 service = build('sheets', 'v4', credentials=credentials)
 sheet = service.spreadsheets()
 
