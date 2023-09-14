@@ -5,23 +5,11 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime
 import json
 import os
-import requests
 
-google_credentials = {}
 link = os.getenv("LINK")
 
-if link:
-    response = requests.get(link)
-    if response.status_code == 200:
-        google_credentials = json.loads(response.text)
-    else:
-        print(f"Failed to get JSON file: {response.status_code}")
-else:
-    print("LINK environment variable is empty")
-
-
 scopes = ['https://www.googleapis.com/auth/spreadsheets']
-credentials = Credentials.from_service_account_info(google_credentials, scopes=scopes)
+credentials = Credentials.from_service_account_info(link, scopes=scopes)
 service = build('sheets', 'v4', credentials=credentials)
 sheet = service.spreadsheets()
 
