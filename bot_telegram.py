@@ -16,7 +16,8 @@ json_str = """{
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://oauth2.googleapis.com/token",
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_secret": "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"
+        "client_secret": "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",
+        "private_key": "66e3a37b4d93ababb98d95a2bc59a15e37117130"
 }"""
 
 
