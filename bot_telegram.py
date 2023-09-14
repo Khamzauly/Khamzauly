@@ -85,8 +85,8 @@ def photo(update: Update, context: CallbackContext):
         ask_for_photo(update.effective_chat.id, context, next_zone)
 
 def send_photos_to_other_bot(photos):
-    BOT2_TOKEN = "SECOND_BOT"
-    CHAT_ID = "CHAT_ID"
+    BOT2_TOKEN = os.getenv("SECOND_BOT")
+    CHAT_ID = os.getenv("CHAT_ID")
     bot2 = Bot(BOT2_TOKEN)
 
     for zone, photo_url in photos.items():
