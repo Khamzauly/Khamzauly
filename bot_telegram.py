@@ -1,10 +1,10 @@
-from telegram import Update, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, InputFile, Bot
+from telegram import Update, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, InputFile, Bot, InputMediaPhoto
 from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, MessageHandler, Filters
 from io import BytesIO
 import requests
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
-from datetime import datetime
+from datetime import datetime, date
 import json
 import os
 
@@ -93,9 +93,18 @@ def send_photos_to_other_bot(photos):
     CHAT_ID = os.getenv("CHAT_ID")
     bot2 = Bot(BOT2_TOKEN)
 
+    media_group = []
+    
     for zone, photo_stream in photos.items():
         photo_stream.seek(0)  # Возврат к началу потока
-        bot2.send_photo(chat_id=CHAT_ID, photo=photo_stream, caption=f"Фото {zone}")
+        media = InputMediaPhoto(media=photo_stream, caption=f"Фото {zone}")
+        media_group.append(media)
+
+    # Отправить текст перед группой фотографий
+    bot2.send_message(chat_id=CHAT_ID, text=f"Смена за {date.today()} завершена.")
+    
+    # Отправить группу фотографий
+    bot2.send_media_group(chat_id=CHAT_ID, media=media_group)
 
 # Основной код
 updater = Updater(TOKEN)
