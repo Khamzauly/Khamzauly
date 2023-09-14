@@ -11,6 +11,7 @@ link = os.getenv("LINK")
 
 json_str = """{
         "client_id": "73898426089-3lfiu34v8g4o3lda3r51qonm6mj0hpnr.apps.googleusercontent.com",
+        "client_email": "khamzauly@gmail.com",
         "project_id": "nudu-398911",
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://oauth2.googleapis.com/token",
