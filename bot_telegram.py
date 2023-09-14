@@ -21,7 +21,7 @@ else:
 
 
 scopes = ['https://www.googleapis.com/auth/spreadsheets']
-credentials = Credentials.from_service_account_file(google_credentials, scopes=scopes)
+credentials = Credentials.from_service_account_info(google_credentials, scopes=scopes)
 service = build('sheets', 'v4', credentials=credentials)
 sheet = service.spreadsheets()
 
