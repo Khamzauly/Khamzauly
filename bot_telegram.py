@@ -60,7 +60,7 @@ def button(update: Update, context: CallbackContext):
 
     if all_tasks_done():
         context.bot.send_message(chat_id=update.effective_chat.id, text="Уборка закончена. Спасибо!")
-        # Здесь можно добавить вашу логику для фото
+        ask_for_photo(update.effective_chat.id, context, photo_zones[0])
 
 
 def ask_for_photo(chat_id, context, zone):
