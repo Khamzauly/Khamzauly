@@ -1,4 +1,4 @@
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, InputFile
+from telegram import Update, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, InputFile, Bot
 from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, MessageHandler, Filters
 
 from googleapiclient.discovery import build
@@ -62,11 +62,35 @@ def button(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Уборка закончена. Спасибо!")
         # Здесь можно добавить вашу логику для фото
 
+
+def ask_for_photo(chat_id, context, zone):
+    global current_photo_zone
+    current_photo_zone = zone
+    context.bot.send_message(chat_id=chat_id, text=f"Отправьте фотографию {zone}")
+
 def photo(update: Update, context: CallbackContext):
+    global current_photo_zone
     user_id = update.effective_user.id
+    if not current_photo_zone:
+        return
+
     photo_file = context.bot.getFile(update.message.photo[-1].file_id)
-    photo_file.download(f"photo_{user_id}.jpg")
-    # Добавьте вашу логику для работы с фото
+    zone_photos[current_photo_zone] = photo_file.file_path
+
+    if current_photo_zone == photo_zones[-1]:
+        send_photos_to_other_bot(zone_photos)
+        current_photo_zone = None
+    else:
+        next_zone = photo_zones[photo_zones.index(current_photo_zone) + 1]
+        ask_for_photo(update.effective_chat.id, context, next_zone)
+
+def send_photos_to_other_bot(photos):
+    BOT2_TOKEN = "SECOND_BOT"
+    CHAT_ID = "CHAT_ID"
+    bot2 = Bot(BOT2_TOKEN)
+
+    for zone, photo_url in photos.items():
+        bot2.send_photo(chat_id=CHAT_ID, photo=open(photo_url, 'rb'), caption=f"Фото {zone}")
 
 # Основной код
 updater = Updater(TOKEN)
