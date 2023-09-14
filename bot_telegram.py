@@ -7,9 +7,22 @@ import json
 import os
 
 link = os.getenv("LINK")
+{"web":{"client_id":"73898426089-3lfiu34v8g4o3lda3r51qonm6mj0hpnr.apps.googleusercontent.com","project_id":"nudu-398911","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"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"}}
+
+json_str = """{
+    "web": {
+        "client_id": "73898426089-3lfiu34v8g4o3lda3r51qonm6mj0hpnr.apps.googleusercontent.com",
+        "project_id": "nudu-398911",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_secret": "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"
+    }
+}"""
+
 
 scopes = ['https://www.googleapis.com/auth/spreadsheets']
-credentials = Credentials.from_service_account_info(link, scopes=scopes)
+credentials = Credentials.from_service_account_info(json_str, scopes=scopes)
 service = build('sheets', 'v4', credentials=credentials)
 sheet = service.spreadsheets()
 
