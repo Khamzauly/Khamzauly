@@ -18,7 +18,7 @@ sheet = service.spreadsheets()
 
 # Функция для получения задач
 def get_tasks():
-    result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="asd!A2:D10").execute()
+    result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="asd!A2:D29").execute()
     return result.get('values', [])
 
 # Функция для обновления задач
