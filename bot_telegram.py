@@ -1,6 +1,5 @@
 from telegram import Update, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, InputFile, Bot
 from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, MessageHandler, Filters
-
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 from datetime import datetime
@@ -20,7 +19,9 @@ sheet = service.spreadsheets()
 
 # Инициализируем некоторые переменные
 zone_photos = {}
+current_photo_zone = None  # Добавим глобальную переменную для текущей фотозоны
 photo_zones = ["зоны 1", "зоны 2", "зоны 3"]
+
 
 def get_tasks():
     result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="asd!A2:D32").execute()
@@ -70,15 +71,15 @@ def ask_for_photo(chat_id, context, zone):
 
 def photo(update: Update, context: CallbackContext):
     global current_photo_zone
-    user_id = update.effective_user.id
     if not current_photo_zone:
         return
 
-    photo_file = context.bot.getFile(update.message.photo[-1].file_id)
-    zone_photos[current_photo_zone] = photo_file.file_path
+    photo_id = update.message.photo[-1].file_id  # Получаем самую большую версию фото
+    zone_photos[current_photo_zone] = photo_id  # Сохраняем идентификатор фото, а не URL
 
     if current_photo_zone == photo_zones[-1]:
         send_photos_to_other_bot(zone_photos)
+        zone_photos.clear()  # Очищаем словарь
         current_photo_zone = None
     else:
         next_zone = photo_zones[photo_zones.index(current_photo_zone) + 1]
@@ -89,8 +90,8 @@ def send_photos_to_other_bot(photos):
     CHAT_ID = os.getenv("CHAT_ID")
     bot2 = Bot(BOT2_TOKEN)
 
-    for zone, photo_url in photos.items():
-        bot2.send_photo(chat_id=CHAT_ID, photo=open(photo_url, 'rb'), caption=f"Фото {zone}")
+    for zone, photo_id in photos.items():
+        bot2.send_photo(chat_id=CHAT_ID, photo=photo_id, caption=f"Фото {zone}")
 
 # Основной код
 updater = Updater(TOKEN)
