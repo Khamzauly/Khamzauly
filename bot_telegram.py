@@ -3,6 +3,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQuery
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 from datetime import datetime
+from telegram import InputFile
 import json
 import os
 
@@ -15,6 +16,21 @@ google_credentials = json.loads(json_str)
 credentials = Credentials.from_service_account_info(google_credentials, scopes=scopes)
 service = build('sheets', 'v4', credentials=credentials)
 sheet = service.spreadsheets()
+
+
+
+zone_photos = {}
+photo_zones = ["зоны 1", "зоны 2", "зоны 3"]
+current_photo_zone = None
+
+# Функция, которая проверяет, все ли задачи выполнены
+def all_tasks_done():
+    tasks = get_tasks()
+    for task in tasks:
+        if len(task) < 2 or task[1] != "TRUE":
+            return False
+    return True
+
 
 # Функция для получения задач
 def get_tasks():
@@ -49,6 +65,36 @@ def start(update: Update, context: CallbackContext):
         update.message.reply_text('Задачи не найдены.')
 
 
+def ask_for_photo(chat_id, context, zone):
+    global current_photo_zone
+    current_photo_zone = zone
+    context.bot.send_message(chat_id=chat_id, text=f"Отправьте фотографию {zone}")
+
+def photo(update: Update, context: CallbackContext):
+    global current_photo_zone
+    user_id = update.effective_user.id
+    if not current_photo_zone:
+        return  # Если нет текущей зоны для фото, просто игнорируем
+
+    photo_file = context.bot.getFile(update.message.photo[-1].file_id)
+    zone_photos[current_photo_zone] = photo_file.file_path
+
+    # Если это последняя фотография
+    if current_photo_zone == photo_zones[-1]:
+        send_photos_to_other_bot(zone_photos)
+        current_photo_zone = None
+    else:
+        next_zone = photo_zones[photo_zones.index(current_photo_zone) + 1]
+        ask_for_photo(update.effective_chat.id, context, next_zone)
+
+def send_photos_to_other_bot(photos):
+    BOT2_TOKEN = "SECOND_BOT"
+    CHAT_ID = "CHAT_ID"
+    bot2 = Bot(BOT2_TOKEN)
+
+    for zone, photo_url in photos.items():
+        bot2.send_photo(chat_id=CHAT_ID, photo=open(photo_url, 'rb'), caption=f"Фото {zone}")
+
 # Обработчик кнопок
 def button(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -72,6 +118,10 @@ def button(update: Update, context: CallbackContext):
 
     # Обновляем клавиатуру в сообщении
     query.edit_message_reply_markup(reply_markup=reply_markup)
+    
+    if all_tasks_done():
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Уборка закончена. Спасибо!")
+        ask_for_photo(update.effective_chat.id, context, photo_zones[0])
 
 
 TOKEN = os.getenv("TOKEN")
@@ -82,6 +132,8 @@ dp = updater.dispatcher
 
 dp.add_handler(CommandHandler("start", start))
 dp.add_handler(CallbackQueryHandler(button))
+dp.add_handler(MessageHandler(Filters.photo, photo))
 
 updater.start_polling()
 updater.idle()
+
