@@ -59,7 +59,20 @@ def button(update: Update, context: CallbackContext):
     # Обновление данных в Google Sheets
     update_task(task_index + 2, user_name)
     
-    # Здесь отправьте обновленный список задач всем пользователям
+    # Создаем новую клавиатуру с обновленными задачами
+    new_keyboard = []
+    tasks = get_tasks()
+    if tasks:
+        for i, task in enumerate(tasks):
+            if len(task) > 1:
+                status = "✅" if task[1] == "TRUE" else "❌"
+                new_keyboard.append([InlineKeyboardButton(f"{task[0]} {status}", callback_data=str(i))])
+    
+    reply_markup = InlineKeyboardMarkup(new_keyboard)
+
+    # Обновляем клавиатуру в сообщении
+    query.edit_message_reply_markup(reply_markup=reply_markup)
+
 
 TOKEN = os.getenv("TOKEN")
 # Основной код
