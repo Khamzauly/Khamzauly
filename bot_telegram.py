@@ -27,7 +27,7 @@ photo_zones = ["зоны 1", "зоны 2", "зоны 3"]
 
 
 def get_tasks():
-    result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="temp!A1:D100").execute()
+    result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="temp_evening!A3:D100").execute()
     return result.get('values', [])
 
 def update_task(row, user_name):
