@@ -25,9 +25,10 @@ zone_photos = {}
 current_photo_zone = None  # Добавим глобальную переменную для текущей фотозоны
 photo_zones = ["зоны 1", "зоны 2", "зоны 3"]
 
+Date = get_current_date_in_gmt6()
 
 def get_tasks():
-    result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="temp_evening!A3:D100").execute()
+    result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="temp_evening!A3:B100").execute()
     return result.get('values', [])
 
 def update_task(row, user_name):
@@ -35,7 +36,7 @@ def update_task(row, user_name):
     sheet.values().update(
         spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w",
         range=f"temp_evening!B{row}:D{row}",
-        body={"values": [[True, user_name, str(datetime.now())]]},
+        body={"values": [[True, user_name, str(Date)]]},
         valueInputOption="RAW"
     ).execute()
 
