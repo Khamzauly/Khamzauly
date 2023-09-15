@@ -54,6 +54,9 @@ def load_chat_names():
     values = result.get('values', [])
     chat_names = {str(row[1]): row[0] for row in values if len(row) > 1}
 
+load_chat_names()
+
+
 def start(update: Update, context: CallbackContext):
     chat_id = str(update.effective_chat.id)
     if chat_id in chat_names:
@@ -61,12 +64,17 @@ def start(update: Update, context: CallbackContext):
         update.message.reply_text(f'Ассаляму алейкум, {name}!')
     else:
         update.message.reply_text('Ассаляму алейкум!')
-    keyboard = [[InlineKeyboardButton(f"{task[0]} {'✅' if task[1] == 'TRUE' else '❌'}", callback_data=str(i))]
-                for i, task in enumerate(get_tasks())]
+    try:
+        keyboard = [
+            [InlineKeyboardButton(f"{task[0]} {'✅' if len(task) > 1 and task[1] == 'TRUE' else '❌'}", callback_data=str(i))]
+            for i, task in enumerate(get_tasks()) if len(task) > 0
+        ]
+    except IndexError as e:
+        print(f"An error occurred: {e}")
+
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('Выберите задачу:', reply_markup=reply_markup)
 
-load_chat_names()
 
 
 def button(update: Update, context: CallbackContext):
