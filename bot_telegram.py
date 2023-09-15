@@ -1,6 +1,6 @@
 from telegram import Update, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, InputFile, Bot, InputMediaPhoto
 from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, MessageHandler, Filters
-from helper.current_time import get_current_date_in_gmt6
+from current_time import get_current_date_in_gmt6
 from io import BytesIO
 import requests
 from googleapiclient.discovery import build
