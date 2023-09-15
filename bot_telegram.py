@@ -1,5 +1,6 @@
 from telegram import Update, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, InputFile, Bot, InputMediaPhoto
 from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, MessageHandler, Filters
+from helper.current_time import get_current_date_in_gmt6
 from io import BytesIO
 import requests
 from googleapiclient.discovery import build
@@ -26,14 +27,14 @@ photo_zones = ["зоны 1", "зоны 2", "зоны 3"]
 
 
 def get_tasks():
-    result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="asd!A2:D32").execute()
+    result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="temp!A1:D100").execute()
     return result.get('values', [])
 
 def update_task(row, user_name):
     # Обновляем задачу в Google Sheets
     sheet.values().update(
         spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w",
-        range=f"asd!B{row}:D{row}",
+        range=f"temp!B{row}:D{row}",
         body={"values": [[True, user_name, str(datetime.now())]]},
         valueInputOption="RAW"
     ).execute()
@@ -43,11 +44,29 @@ def all_tasks_done():
     tasks = get_tasks()
     return all(len(task) >= 2 and task[1] == "TRUE" for task in tasks)
 
+# Для хранения пар "Chat ID - Имя"
+chat_names = {}
+
+def load_chat_names():
+    global chat_names
+    result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="чаты!A:B").execute()
+    values = result.get('values', [])
+    chat_names = {str(row[1]): row[0] for row in values if len(row) > 1}
+
 def start(update: Update, context: CallbackContext):
+    chat_id = str(update.effective_chat.id)
+    if chat_id in chat_names:
+        name = chat_names[chat_id]
+        update.message.reply_text(f'Ассаляму алейкум, {name}!')
+    else:
+        update.message.reply_text('Ассаляму алейкум!')
     keyboard = [[InlineKeyboardButton(f"{task[0]} {'✅' if task[1] == 'TRUE' else '❌'}", callback_data=str(i))]
                 for i, task in enumerate(get_tasks())]
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('Выберите задачу:', reply_markup=reply_markup)
+
+load_chat_names()
+
 
 def button(update: Update, context: CallbackContext):
     query = update.callback_query
