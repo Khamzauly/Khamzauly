@@ -34,7 +34,7 @@ def update_task(row, user_name):
     # Обновляем задачу в Google Sheets
     sheet.values().update(
         spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w",
-        range=f"temp!B{row}:D{row}",
+        range=f"temp_evening!B{row}:D{row}",
         body={"values": [[True, user_name, str(datetime.now())]]},
         valueInputOption="RAW"
     ).execute()
