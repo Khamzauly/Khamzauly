@@ -62,6 +62,17 @@ def load_chat_names():
 
 shift_status = {}
 
+active_shift_users = []
+
+
+def update_all_chats(context: CallbackContext):
+    new_keyboard = [
+        [InlineKeyboardButton(f"{task[0]} {'✅' if task[1] == 'TRUE' else '❌'}", callback_data=str(i))]
+        for i, task in enumerate(get_tasks())
+    ]
+    for chat_id in active_shift_users:
+        context.bot.send_message(chat_id=chat_id, text='Выберите задачу:', reply_markup=InlineKeyboardMarkup(new_keyboard))
+
 def load_shift_status():
     global shift_status
     result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="чаты!A:C").execute()
@@ -72,6 +83,7 @@ def start(update: Update, context: CallbackContext):
     load_chat_names()
     load_shift_status()
     chat_id = str(update.effective_chat.id)
+    shift_status = get_shift_status_from_sheet(chat_id)  # функция, которая проверяет статус смены в Google Sheets
 
     if chat_id not in chat_names:
         update.message.reply_text(f'Извините, у вас нет доступа к этому боту. Ваш чат id: {chat_id}. Запросите доступ у управляющего.')
@@ -79,7 +91,9 @@ def start(update: Update, context: CallbackContext):
     elif chat_id in chat_names and shift_status.get(chat_id) != 'смена':
         update.message.reply_text('Извините, сейчас не ваша смена.')
         return
-    elif chat_id in chat_names:
+    elif chat_id in chat_names and shift_status.get(chat_id) == "смена":
+        if chat_id not in active_shift_users:
+            active_shift_users.append(chat_id)
         name = chat_names[chat_id]
         update.message.reply_text(f'Ассаляму алейкум, {name}!')
 
@@ -114,10 +128,12 @@ def button(update: Update, context: CallbackContext):
         for i, task in enumerate(get_tasks())
     ]
     query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(new_keyboard))
-
+    
     if all_tasks_done():
         context.bot.send_message(chat_id=update.effective_chat.id, text="Уборка закончена. Спасибо!")
         ask_for_photo(update.effective_chat.id, context, photo_zones[0])
+    
+    update_all_chats(context)
 
 def ask_for_photo(chat_id, context, zone):
     global current_photo_zone
