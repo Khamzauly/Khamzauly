@@ -51,6 +51,7 @@ def all_tasks_done():
     tasks = get_tasks()
     return all(len(task) >= 2 and task[1] == "TRUE" for task in tasks)
 
+chat_names = {}
 
 def load_chat_names():
     global chat_names
