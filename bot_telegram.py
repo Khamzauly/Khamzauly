@@ -59,20 +59,29 @@ def load_chat_names():
     result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="чаты!A:B").execute()
     values = result.get('values', [])
     chat_names = {str(row[1]): str(row[0]) for row in values if len(row) > 1}
-    print(f"Loaded chat names: {chat_names}")  # Логгирование
 
+shift_status = {}
+
+def load_shift_status():
+    global shift_status
+    result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="чаты!A:C").execute()
+    values = result.get('values', [])
+    shift_status = {str(row[1]): str(row[2]) for row in values if len(row) > 2}
 
 def start(update: Update, context: CallbackContext):
     load_chat_names()
+    load_shift_status()
     chat_id = str(update.effective_chat.id)
+
     if chat_id not in chat_names:
         update.message.reply_text(f'Извините, у вас нет доступа к этому боту. Ваш чат id: {chat_id}. Запросите доступ у управляющего.')
-        return  # Завершаем выполнение функции, чтобы не продолжать взаимодействовать с пользователем
+        return
+    elif chat_id in chat_names and shift_status.get(chat_id) != 'смена':
+        update.message.reply_text('Извините, сейчас не ваша смена.')
+        return
     elif chat_id in chat_names:
         name = chat_names[chat_id]
         update.message.reply_text(f'Ассаляму алейкум, {name}!')
-    else:
-        update.message.reply_text('Ассаляму алейкум!')
 
     if all_tasks_done():
         update.message.reply_text('Еще не время уборки')
