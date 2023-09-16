@@ -60,8 +60,6 @@ def load_chat_names():
     values = result.get('values', [])
     chat_names = {str(row[1]): row[0] for row in values if len(row) > 1}
 
-load_chat_names()
-
 def start(update: Update, context: CallbackContext):
     load_chat_names()
     chat_id = str(update.effective_chat.id)
