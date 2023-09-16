@@ -58,14 +58,13 @@ def load_chat_names():
     chat_names = {}
     result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="чаты!A:B").execute()
     values = result.get('values', [])
-    chat_names = {row[1]: row[0] for row in values if len(row) > 1}
+    chat_names = {str(row[1]): str(row[0]) for row in values if len(row) > 1}
     print(f"Loaded chat names: {chat_names}")  # Логгирование
 
 
 def start(update: Update, context: CallbackContext):
-    chat_names = {}
     load_chat_names()
-    chat_id = update.effective_chat.id
+    chat_id = str(update.effective_chat.id)
     if chat_id not in chat_names:
         update.message.reply_text(f'Извините, у вас нет доступа к этому боту. Ваш чат id: {chat_id}. Запросите доступ у управляющего. {chat_names}')
         return  # Завершаем выполнение функции, чтобы не продолжать взаимодействовать с пользователем
