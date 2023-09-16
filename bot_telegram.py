@@ -61,7 +61,7 @@ def load_chat_names():
     chat_names = {str(row[1]): str(row[0]) for row in values if len(row) > 1}
 
 active_shift_users = []
-
+active_messages = {} 
 
 def update_all_chats(context: CallbackContext):
     new_keyboard = [
@@ -69,8 +69,10 @@ def update_all_chats(context: CallbackContext):
         for i, task in enumerate(get_tasks())
     ]
     for chat_id in active_shift_users:
-        context.bot.send_message(chat_id=chat_id, text='Выберите задачу:', reply_markup=InlineKeyboardMarkup(new_keyboard))
-
+        message_id = active_messages.get(chat_id, None)  # Получаем message_id для этого chat_id
+        if message_id:  # Если message_id существует
+            context.bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id,
+                                                   reply_markup=InlineKeyboardMarkup(new_keyboard))
 
 shift_status = {}
 
@@ -111,9 +113,8 @@ def start(update: Update, context: CallbackContext):
         print(f"An error occurred: {e}")
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text('Выберите задачу:', reply_markup=reply_markup)
-
-
+    sent_message = update.message.reply_text('Выберите задачу:', reply_markup=reply_markup)
+    active_messages[chat_id] = sent_message.message_id  # Сохраняем message_id
 
 def button(update: Update, context: CallbackContext):
     query = update.callback_query
