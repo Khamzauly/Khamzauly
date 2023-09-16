@@ -62,10 +62,26 @@ def load_chat_names():
 
 load_chat_names()
 
+
+def start(update: Update, context: CallbackContext):
+    chat_id = update.effective_chat.id
+    print(f"New chat_id: {chat_id}")
+    # ... (остальной код)
+
+def start(update: Update, context: CallbackContext):
+    chat_id = str(update.effective_chat.id)
+    if chat_id in chat_names:
+        name = chat_names[chat_id]
+        update.message.reply_text(f'Ассаляму алейкум, {name}!')
+        # Добавьте здесь логику для отображения задач, если таковые есть
+    else:
+        update.message.reply_text(f'Ваш чат id: {chat_id}. Запросите доступ у управляющего.')
+
+
 def start(update: Update, context: CallbackContext):
     chat_id = str(update.effective_chat.id)
     if chat_id not in chat_names:
-        update.message.reply_text('Извините, у вас нет доступа к этому боту.')
+        update.message.reply_text(f'Извините, у вас нет доступа к этому боту. Ваш чат id: {chat_id}. Запросите доступ у управляющего.')
         return  # Завершаем выполнение функции, чтобы не продолжать взаимодействовать с пользователем
     elif chat_id in chat_names:
         name = chat_names[chat_id]
