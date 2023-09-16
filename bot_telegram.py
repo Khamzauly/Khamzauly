@@ -62,10 +62,12 @@ def load_chat_names():
 
 load_chat_names()
 
-
 def start(update: Update, context: CallbackContext):
     chat_id = str(update.effective_chat.id)
-    if chat_id in chat_names:
+    if chat_id not in chat_names:
+        update.message.reply_text('Извините, у вас нет доступа к этому боту.')
+        return  # Завершаем выполнение функции, чтобы не продолжать взаимодействовать с пользователем
+    elif chat_id in chat_names:
         name = chat_names[chat_id]
         update.message.reply_text(f'Ассаляму алейкум, {name}!')
     else:
@@ -108,6 +110,11 @@ def button(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Уборка закончена. Спасибо!")
         ask_for_photo(update.effective_chat.id, context, photo_zones[0])
 
+def load_chat_names():
+    global chat_names
+    result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="чаты!A:B").execute()
+    values = result.get('values', [])
+    chat_names = {str(row[1]): row[0] for row in values if len(row) > 1}
 
 def ask_for_photo(chat_id, context, zone):
     global current_photo_zone
@@ -151,6 +158,9 @@ def send_photos_to_other_bot(photos):
 
     # Отправить группу фотографий
     bot2.send_media_group(chat_id=CHAT_ID, media=media_group)
+
+load_chat_names()  # Загрузка имен и ID чатов из Google Sheets
+
 
 # Основной код
 updater = Updater(TOKEN)
