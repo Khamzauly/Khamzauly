@@ -9,6 +9,8 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime, date
 import json
 import os
+import time
+
 
 # Устанавливаем переменные окружения и настройки
 TOKEN = os.getenv("TOKEN")
@@ -68,6 +70,7 @@ def update_all_chats(context: CallbackContext):
     logging.info(f"Trying to update all chats. Current active_shift_users: {active_shift_users}")
     logging.info(f"Current active_messages: {active_messages}")
 
+    time.sleep(2)  # Задержка в 2 секунды
     new_keyboard = [
         [InlineKeyboardButton(f"{task[0]} {'✅' if task[1] == 'TRUE' else '❌'}", callback_data=str(i))]
         for i, task in enumerate(get_tasks())
