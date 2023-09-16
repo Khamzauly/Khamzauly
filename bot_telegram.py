@@ -60,8 +60,6 @@ def load_chat_names():
     values = result.get('values', [])
     chat_names = {str(row[1]): str(row[0]) for row in values if len(row) > 1}
 
-shift_status = {}
-
 active_shift_users = []
 
 
@@ -72,6 +70,9 @@ def update_all_chats(context: CallbackContext):
     ]
     for chat_id in active_shift_users:
         context.bot.send_message(chat_id=chat_id, text='Выберите задачу:', reply_markup=InlineKeyboardMarkup(new_keyboard))
+
+
+shift_status = {}
 
 def load_shift_status():
     global shift_status
@@ -88,10 +89,10 @@ def start(update: Update, context: CallbackContext):
     if chat_id not in chat_names:
         update.message.reply_text(f'Извините, у вас нет доступа к этому боту. Ваш чат id: {chat_id}. Запросите доступ у управляющего.')
         return
-    elif chat_id in chat_names and shift_status.get(chat_id) != 'смена':
+    elif chat_id in chat_names and shift_status != 'смена':
         update.message.reply_text('Извините, сейчас не ваша смена.')
         return
-    elif chat_id in chat_names and shift_status.get(chat_id) == "смена":
+    elif chat_id in chat_names and shift_status == "смена":
         if chat_id not in active_shift_users:
             active_shift_users.append(chat_id)
         name = chat_names[chat_id]
