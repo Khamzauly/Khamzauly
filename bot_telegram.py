@@ -62,13 +62,8 @@ def load_chat_names():
 
 load_chat_names()
 
-
 def start(update: Update, context: CallbackContext):
-    chat_id = update.effective_chat.id
-    print(f"New chat_id: {chat_id}")
-    # ... (остальной код)
-
-def start(update: Update, context: CallbackContext):
+    load_chat_names()
     chat_id = str(update.effective_chat.id)
     if chat_id in chat_names:
         name = chat_names[chat_id]
