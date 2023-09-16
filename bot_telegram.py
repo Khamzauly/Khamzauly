@@ -107,18 +107,22 @@ def start(update: Update, context: CallbackContext):
 def button(update: Update, context: CallbackContext):
     query = update.callback_query
     task_index = int(query.data)
-    user_name = update.effective_user.first_name
+    chat_id = str(update.effective_chat.id)
+    user_name = chat_names.get(chat_id, "Неизвестный")
 
     update_task(task_index + 4, user_name)  # Обновляем данные в Google Sheets
 
     # Обновляем клавиатуру в сообщении
-    new_keyboard = [[InlineKeyboardButton(f"{task[0]} {'✅' if task[1] == 'TRUE' else '❌'}", callback_data=str(i))]
-        for i, task in enumerate(get_tasks())]
+    new_keyboard = [
+        [InlineKeyboardButton(f"{task[0]} {'✅' if task[1] == 'TRUE' else '❌'}", callback_data=str(i))]
+        for i, task in enumerate(get_tasks())
+    ]
     query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(new_keyboard))
 
     if all_tasks_done():
         context.bot.send_message(chat_id=update.effective_chat.id, text="Уборка закончена. Спасибо!")
         ask_for_photo(update.effective_chat.id, context, photo_zones[0])
+
 
 def load_chat_names():
     global chat_names
