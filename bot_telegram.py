@@ -25,7 +25,13 @@ zone_photos = {}
 current_photo_zone = None  # Добавим глобальную переменную для текущей фотозоны
 photo_zones = ["зоны 1", "зоны 2", "зоны 3"]
 
-Date = get_current_date_in_gmt6()
+def get_date_from_sheet():
+    result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="temp_evening!B2").execute()
+    values = result.get('values', [])
+    if len(values) > 0 and len(values[0]) > 0:
+        return values[0][0]
+    return None
+
 
 def get_tasks():
     result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="temp_evening!A4:B100").execute()
@@ -36,7 +42,7 @@ def update_task(row, user_name):
     sheet.values().update(
         spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w",
         range=f"temp_evening!B{row}:D{row}",
-        body={"values": [[True, user_name, str(Date)]]},
+        body={"values": [[True, user_name, str(get_current_date_in_gmt6())]]},
         valueInputOption="RAW"
     ).execute()
 
@@ -64,6 +70,15 @@ def start(update: Update, context: CallbackContext):
         update.message.reply_text(f'Ассаляму алейкум, {name}!')
     else:
         update.message.reply_text('Ассаляму алейкум!')
+
+    if all_tasks_done():
+        current_date = get_date_from_sheet()
+        if current_date:
+            update.message.reply_text(f'Заданий на сегодня нет. Смена за {current_date} закрыта.')
+        else:
+            update.message.reply_text('Заданий на сегодня нет.')
+        return  # Выход из функции, чтобы не выводить клавиатуру с задачами
+    
     try:
         keyboard = [
             [InlineKeyboardButton(f"{task[0]} {'✅' if len(task) > 1 and task[1] == 'TRUE' else '❌'}", callback_data=str(i))]
@@ -128,9 +143,12 @@ def send_photos_to_other_bot(photos):
         media = InputMediaPhoto(media=photo_stream, caption=f"Фото {zone}")
         media_group.append(media)
 
-    # Отправить текст перед группой фотографий
-    bot2.send_message(chat_id=CHAT_ID, text=f"Смена за {date.today()} завершена.")
-    
+    current_date = get_date_from_sheet()
+    if current_date:
+        bot2.send_message(chat_id=CHAT_ID, text=f"Смена за {current_date} завершена.")
+    else:
+        bot2.send_message(chat_id=CHAT_ID, text="Смена завершена.")
+
     # Отправить группу фотографий
     bot2.send_media_group(chat_id=CHAT_ID, media=media_group)
 
