@@ -75,11 +75,7 @@ def start(update: Update, context: CallbackContext):
         update.message.reply_text('Ассаляму алейкум!')
 
     if all_tasks_done():
-        current_date = get_date_from_sheet()
-        if current_date:
-            update.message.reply_text(f'Заданий на сегодня нет. Смена за {current_date} закрыта.')
-        else:
-            update.message.reply_text('Заданий на сегодня нет.')
+        update.message.reply_text('Еще не время уборки')
         return  # Выход из функции, чтобы не выводить клавиатуру с задачами
     
     try:
