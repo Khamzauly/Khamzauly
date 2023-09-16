@@ -60,7 +60,7 @@ def load_chat_names():
     result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="чаты!A:B").execute()
     values = result.get('values', [])
     chat_names = {row[1]: row[0] for row in values if len(row) > 1}
-
+    print(f"Loaded chat names: {chat_names}")  # Логгирование
     
 
 
