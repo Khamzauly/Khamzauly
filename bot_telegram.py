@@ -55,7 +55,7 @@ chat_names = {}
 
 def load_chat_names():
     global chat_names
-    chat_names = {}  # Обнуляем переменную
+    chat_names = {}
     result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="чаты!A:B").execute()
     values = result.get('values', [])
     chat_names = {row[1]: row[0] for row in values if len(row) > 1}
@@ -63,6 +63,7 @@ def load_chat_names():
 
 
 def start(update: Update, context: CallbackContext):
+    chat_names = {}
     load_chat_names()
     chat_id = update.effective_chat.id
     if chat_id in chat_names:
