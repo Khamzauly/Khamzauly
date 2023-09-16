@@ -3,6 +3,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQuery
 from current_time import get_current_date_in_gmt6
 from io import BytesIO
 import requests
+import logging
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 from datetime import datetime, date
@@ -64,10 +65,14 @@ active_shift_users = []
 active_messages = {} 
 
 def update_all_chats(context: CallbackContext):
+    logging.info(f"Trying to update all chats. Current active_shift_users: {active_shift_users}")
+    logging.info(f"Current active_messages: {active_messages}")
+
+
     new_keyboard = [
         [InlineKeyboardButton(f"{task[0]} {'✅' if task[1] == 'TRUE' else '❌'}", callback_data=str(i))]
-        for i, task in enumerate(get_tasks())
-    ]
+        for i, task
+
     for chat_id in active_shift_users:
         message_ids = active_messages.get(chat_id, [])  # Получаем список message_id для этого chat_id
         for message_id in message_ids:  # Проходим по всем message_id этого chat_id
