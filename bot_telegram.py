@@ -83,7 +83,7 @@ def start(update: Update, context: CallbackContext):
     load_chat_names()
     load_shift_status()
     chat_id = str(update.effective_chat.id)
-    shift_status = get_shift_status_from_sheet(chat_id)  # функция, которая проверяет статус смены в Google Sheets
+    shift_status = shift_status.get(chat_id, "не определено")  # функция, которая проверяет статус смены в Google Sheets
 
     if chat_id not in chat_names:
         update.message.reply_text(f'Извините, у вас нет доступа к этому боту. Ваш чат id: {chat_id}. Запросите доступ у управляющего.')
