@@ -118,7 +118,8 @@ def start(update: Update, context: CallbackContext):
     message_id = sent_message.message_id
     if chat_id not in active_messages:
         active_messages[chat_id] = []
-    active_messages[chat_id].append(message_id)
+    active_messages[chat_id].append(sent_message.message_id)
+
 
 def button(update: Update, context: CallbackContext):
     query = update.callback_query
