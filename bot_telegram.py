@@ -82,11 +82,11 @@ def button(update: Update, context: CallbackContext):
     task_index = int(query.data)
     user_name = update.effective_user.first_name
 
-    update_task(task_index + 2, user_name)  # Обновляем данные в Google Sheets
+    update_task(task_index + 4, user_name)  # Обновляем данные в Google Sheets
 
     # Обновляем клавиатуру в сообщении
     new_keyboard = [[InlineKeyboardButton(f"{task[0]} {'✅' if task[1] == 'TRUE' else '❌'}", callback_data=str(i))]
-                    for i, task in enumerate(get_tasks())]
+        for i, task in enumerate(get_tasks())]
     query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(new_keyboard))
 
     if all_tasks_done():
