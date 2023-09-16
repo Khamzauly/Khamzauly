@@ -71,7 +71,7 @@ def start(update: Update, context: CallbackContext):
         update.message.reply_text(f'Ассаляму алейкум, {name}!')
         # Добавьте здесь логику для отображения задач, если таковые есть
     else:
-        update.message.reply_text(f'Ваш чат id: {chat_id}. Запросите доступ у управляющего.')
+        update.message.reply_text(f'Ваш чат id: {chat_id}. Запросите доступ у управляющего.{chat_names}')
 
 
 def start(update: Update, context: CallbackContext):
