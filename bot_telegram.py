@@ -69,10 +69,11 @@ def update_all_chats(context: CallbackContext):
         for i, task in enumerate(get_tasks())
     ]
     for chat_id in active_shift_users:
-        message_id = active_messages.get(chat_id, None)  # Получаем message_id для этого chat_id
-        if message_id:  # Если message_id существует
+        message_ids = active_messages.get(chat_id, [])  # Получаем список message_id для этого chat_id
+        for message_id in message_ids:  # Проходим по всем message_id этого chat_id
             context.bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id,
                                                    reply_markup=InlineKeyboardMarkup(new_keyboard))
+
 
 shift_status = {}
 
@@ -114,7 +115,10 @@ def start(update: Update, context: CallbackContext):
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     sent_message = update.message.reply_text('Выберите задачу:', reply_markup=reply_markup)
-    active_messages[chat_id] = sent_message.message_id  # Сохраняем message_id
+    message_id = sent_message.message_id
+    if chat_id not in active_messages:
+        active_messages[chat_id] = []
+    active_messages[chat_id].append(message_id)
 
 def button(update: Update, context: CallbackContext):
     query = update.callback_query
