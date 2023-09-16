@@ -58,12 +58,12 @@ def load_chat_names():
     global chat_names
     result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="чаты!A:B").execute()
     values = result.get('values', [])
-    chat_names = {str(row[1]): str(row[0]) for row in values if len(row) > 1}
+    chat_names = {row[1]: row[0] for row in values if len(row) > 1}
 
 
 def start(update: Update, context: CallbackContext):
     load_chat_names()
-    chat_id = str(update.effective_chat.id)
+    chat_id = update.effective_chat.id
     if chat_id in chat_names:
         name = chat_names[chat_id]
         update.message.reply_text(f'Ассаляму алейкум, {name}!')
