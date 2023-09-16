@@ -51,8 +51,6 @@ def all_tasks_done():
     tasks = get_tasks()
     return all(len(task) >= 2 and task[1] == "TRUE" for task in tasks)
 
-# Для хранения пар "Chat ID - Имя"
-chat_names = {}
 
 def load_chat_names():
     global chat_names
@@ -61,7 +59,6 @@ def load_chat_names():
     values = result.get('values', [])
     chat_names = {row[1]: row[0] for row in values if len(row) > 1}
     print(f"Loaded chat names: {chat_names}")  # Логгирование
-    
 
 
 def start(update: Update, context: CallbackContext):
@@ -126,13 +123,6 @@ def button(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Уборка закончена. Спасибо!")
         ask_for_photo(update.effective_chat.id, context, photo_zones[0])
 
-
-def load_chat_names():
-    global chat_names
-    result = sheet.values().get(spreadsheetId="1xjphW6Zlc3Hx73h2pTmFgDLeR4-MhVw2xITgjIOLN4w", range="чаты!A:B").execute()
-    values = result.get('values', [])
-    chat_names = {str(row[1]): row[0] for row in values if len(row) > 1}
-
 def ask_for_photo(chat_id, context, zone):
     global current_photo_zone
     current_photo_zone = zone
@@ -175,8 +165,6 @@ def send_photos_to_other_bot(photos):
 
     # Отправить группу фотографий
     bot2.send_media_group(chat_id=CHAT_ID, media=media_group)
-
-load_chat_names()  # Загрузка имен и ID чатов из Google Sheets
 
 
 # Основной код
