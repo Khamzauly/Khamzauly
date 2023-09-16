@@ -84,15 +84,15 @@ def start(update: Update, context: CallbackContext):
     load_chat_names()
     load_shift_status()
     chat_id = str(update.effective_chat.id)
-    shift_status = shift_status.get(chat_id, "не определено")  # функция, которая проверяет статус смены в Google Sheets
+    new_shift_status = shift_status.get(chat_id, "не определено")
 
     if chat_id not in chat_names:
         update.message.reply_text(f'Извините, у вас нет доступа к этому боту. Ваш чат id: {chat_id}. Запросите доступ у управляющего.')
         return
-    elif chat_id in chat_names and shift_status != 'смена':
+    elif chat_id in chat_names and new_shift_status != 'смена':
         update.message.reply_text('Извините, сейчас не ваша смена.')
         return
-    elif chat_id in chat_names and shift_status == "смена":
+    elif chat_id in chat_names and new_shift_status == "смена":
         if chat_id not in active_shift_users:
             active_shift_users.append(chat_id)
         name = chat_names[chat_id]
