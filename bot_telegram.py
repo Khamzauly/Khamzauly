@@ -66,7 +66,7 @@ def start(update: Update, context: CallbackContext):
     load_chat_names()
     chat_id = str(update.effective_chat.id)
     if chat_id not in chat_names:
-        update.message.reply_text(f'Извините, у вас нет доступа к этому боту. Ваш чат id: {chat_id}. Запросите доступ у управляющего. {chat_names}')
+        update.message.reply_text(f'Извините, у вас нет доступа к этому боту. Ваш чат id: {chat_id}. Запросите доступ у управляющего.')
         return  # Завершаем выполнение функции, чтобы не продолжать взаимодействовать с пользователем
     elif chat_id in chat_names:
         name = chat_names[chat_id]
