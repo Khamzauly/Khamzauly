@@ -1,4 +1,4 @@
-from telegram import Update, CallbackContext
+from telegram import Update, CallbackQuery
 from telegram.ext import CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 from cleaning_regulations import start, button, photo
 
