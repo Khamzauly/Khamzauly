@@ -1,11 +1,11 @@
+import os
 from telegram.ext import Updater
 from handlers import start_handler, button_handler, photo_handler
 
-TOKEN = os.getenv("TOKEN")
-
-if __name__ == '__main__':
+def main():
+    TOKEN = os.getenv("TOKEN")
     updater = Updater(TOKEN)
-    dp = updater.dispatcher
+    dp: Dispatcher = updater.dispatcher  # Здесь dp определен
 
     # Добавляем обработчики
     dp.add_handler(start_handler)
@@ -14,3 +14,6 @@ if __name__ == '__main__':
 
     updater.start_polling()
     updater.idle()
+    
+if __name__ == '__main__':
+    main()
