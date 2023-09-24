@@ -1,5 +1,3 @@
-# cleaning_regulations.py
-
 from current_time import get_current_date_in_gmt6
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
